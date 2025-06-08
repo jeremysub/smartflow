@@ -1,0 +1,24 @@
+{
+    "name": "Dummy Workflow",
+    "description": "This workflow is used to test various actions.",
+    "actions": [
+        {
+            "action_type": "dummy",
+            "name": "Dummy",
+            "display": "Running dummy action..."
+        },
+        {
+            "action_type": "hello_world",
+            "name": "Hello World",
+            "display": "Running hello world...",
+            "parameters": {
+                "user_name": "Bob"
+            }
+        },
+        {
+            "action_type": "save_context",
+            "name": "Save Context",
+            "display": "Saving context..."
+        }
+    ]
+}

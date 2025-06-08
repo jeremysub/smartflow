@@ -1,0 +1,7 @@
+pydantic
+pyyaml
+azure-storage-blob
+azure-data-tables
+azure-servicebus
+azure-core
+python-dotenv
