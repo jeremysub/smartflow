@@ -12,6 +12,7 @@ from sample_files.actions.dummy_with_exception import DummyWithExceptionAction
 from sample_files.actions.clean_up_working_folder import CleanUpWorkingFolderAction
 from sample_files.actions.create_some_file import CreateSomeFileAction
 from sample_files.actions.save_context import SaveContextAction
+from sample_files.actions.dummy_ret_global import DummyRetGlobalAction
 
 def main():
     
@@ -23,6 +24,7 @@ def main():
         name="Test Workflow",
         description="A test workflow",
         success_details="record_id={Create_Some_Record.record_id}",
+        parameters={"wf_param_set_in_definition": "AAAAA"},
         actions=[
             Action(
                 action_type="create_some_file",
@@ -63,6 +65,11 @@ def main():
                 display="Running dummy..."
             ),
             Action(
+                action_type="dummy_ret_global",
+                name="Dummy Return Global",
+                display="Running dummy return global..."
+            ),
+            Action(
                 action_type="clean_up_working_folder",
                 name="Clean Up Working Folder",
                 display="Cleaning up working folder..."
@@ -85,7 +92,7 @@ def main():
     message = WorkflowMessage(
         message_id=str(uuid.uuid4()),
         config_name="dummy_workflow",
-        parameters={"my_wf_param": "Some workflow parameter value"}
+        parameters={"wf_param_set_in_message": "BBBBB"}
     )
 
     # Process the message

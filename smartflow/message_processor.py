@@ -71,7 +71,11 @@ class MessageProcessor:
         # set workflow name
         context["workflow.name"] = self._workflow.name
         
-        # Add workflow parameters, but with "workflow." prefix (if any)
+        # add workflow parameters from workflow definition (with "workflow." prefix)
+        if self._workflow.parameters:
+            context.update({f"workflow.{key}": value for key, value in self._workflow.parameters.items()})
+        
+        # add workflow parameters from message (with "workflow." prefix)
         if workflow_message.parameters:
             context.update({f"workflow.{key}": value for key, value in workflow_message.parameters.items()})
         
@@ -159,11 +163,14 @@ class MessageProcessor:
                 # error can also be raised by the action handler, so we need to check for it as well
                 logging.error(f"Action execution failed: {e}")
                 action_context = {"result": "Error", "error": str(e)}
-                is_error = True            
+                is_error = True
             
-            # prefix each key in the action context with the action name (using dot notation)
-            action_context = {f"{action_prefix}.{key}": value for key, value in action_context.items()}
-            context.update(action_context)
+            # if not a workflow key, prefix the keys in the action context with the action prefix (using dot notation)
+            for key, value in action_context.items():
+                if key.startswith("workflow."):
+                    context[key] = value
+                else:
+                    context[f"{action_prefix}.{key}"] = value
             
             # if the last action result in error, stop execution of actions
             if is_error:
