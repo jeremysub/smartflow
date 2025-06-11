@@ -18,6 +18,6 @@ class DummyWithExceptionAction(ActionHandler):
         logging.info("Dummy action executed")
         raise Exception("Dummy action failed")
 
-        action_context["result"] = "success"
+        action_context["result"] = "Success"
         
         return action_context

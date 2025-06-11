@@ -20,9 +20,9 @@ class CreateSomeFileAction(ActionHandler):
         except Exception as e:
             logging.error(f"Error creating file in working folder: {e}")
             action_context["error"] = str(e)
-            action_context["result"] = "error"
+            action_context["result"] = "Error"
             return action_context
 
-        action_context["result"] = "success"
+        action_context["result"] = "Success"
         
         return action_context

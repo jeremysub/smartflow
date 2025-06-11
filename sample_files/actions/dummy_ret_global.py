@@ -21,6 +21,6 @@ class DummyRetGlobalAction(ActionHandler):
         action_context["workflow.wf_param_set_in_action"] = "A new value from action"
         action_context["workflow.wf_param_set_in_definition"] = "A new value from action - replaces workflow value"
 
-        action_context["result"] = "success"
+        action_context["result"] = "Success"
         
         return action_context

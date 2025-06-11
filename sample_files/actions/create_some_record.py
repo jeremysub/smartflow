@@ -15,6 +15,6 @@ class CreateSomeRecordAction(ActionHandler):
         action_context["record_id"] = "1234567890"
 
         # add success indicator to the context
-        action_context["result"] = "success"
+        action_context["result"] = "Success"
 
         return action_context

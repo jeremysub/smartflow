@@ -67,7 +67,8 @@ def main():
             Action(
                 action_type="dummy_ret_global",
                 name="Dummy Return Global",
-                display="Running dummy return global..."
+                display="Running dummy return global...",
+                condition="workflow.wf_param_set_in_definition == 'AAAAA'"
             ),
             Action(
                 action_type="clean_up_working_folder",

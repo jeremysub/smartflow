@@ -29,11 +29,11 @@ class SaveContextAction(ActionHandler):
         # save the context to a file in the working folder
         try:
             working_folder.upload_file("context.json", context_data)
-            action_context["result"] = "success"
+            action_context["result"] = "Success"
             
         except Exception as e:
             logging.error(f"Error saving context to blob storage: {e}")
-            action_context["result"] = "error"
+            action_context["result"] = "Error"
             action_context["error"] = str(e)
 
         # return the context

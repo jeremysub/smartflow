@@ -209,6 +209,14 @@ class MessageProcessor:
         
         logging.info(f"Executing action: {action.name} ({action.action_type})")
         
+        # check for condition and return if not met
+        if action.condition:
+            condition_result = Utilities.evaluate_condition(action.condition, context)
+            if condition_result == False:
+                logging.info(f"Action {action.name} ({action.action_type}) condition not met, skipping.")
+                action_output_context = {"result": "Skipped"}
+                return action_output_context
+
         # load action handler class
         action_handler_class = default_registry.get_handler(action.action_type)
         if action_handler_class is None:

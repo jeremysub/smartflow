@@ -8,6 +8,7 @@ class Action(BaseModel):
     action_type: str = Field(..., description="The type of action to perform")
     name: Optional[str] = Field(None, description="The optional name of the action. If not provided, the action_type will be used.")
     display: Optional[str] = Field(None, description="The optional display message for the action. If not provided, the action_type will be used.")
+    condition: Optional[str] = Field(None, description="The optional condition for the action. If provided, it must evaluate to true for the action to be executed. If not provided, the action will always be executed.")
     parameters: Optional[Dict[str, str]] = Field(None, description="Parameters for this action")
 
 class Workflow(BaseModel):

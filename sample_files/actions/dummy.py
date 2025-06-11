@@ -17,6 +17,6 @@ class DummyAction(ActionHandler):
 
         logging.info("Dummy action executed")
 
-        action_context["result"] = "success"
+        action_context["result"] = "Success"
         
         return action_context

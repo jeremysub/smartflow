@@ -22,6 +22,7 @@ class Utilities:
         Replaces placeholders in the text with the values from the context
         
         Placholders are expressed as {key} in the text and can appear multiple times, for multiple keys.
+        Keys are matched case-insensitively.
         
         Args:
             text: The text to replace placeholders in
@@ -37,10 +38,14 @@ class Utilities:
         # get all placholders found in the text
         placeholders = re.findall(r"\{([^{}]+)\}", text)
 
+        # Create a case-insensitive context dictionary
+        context_lower = {k.lower(): v for k, v in context.items()}
+
         # replace placeholders in the text with the values from the context
         for placeholder in placeholders:
-            if placeholder in context:
-                text = text.replace(f"{{{placeholder}}}", str(context[placeholder]))
+            placeholder_lower = placeholder.lower()
+            if placeholder_lower in context_lower:
+                text = text.replace(f"{{{placeholder}}}", str(context_lower[placeholder_lower]))
             else:
                 logging.warning(f"Placeholder '{placeholder}' not found in context")
 
@@ -80,3 +85,127 @@ class Utilities:
         # deserialize the config
         config = Workflow.model_validate_json(config_json)
         return config
+
+    @staticmethod
+    def evaluate_condition(condition: str, context: Dict[str, str]) -> bool:
+        """
+        Evaluates a condition string against a context dictionary.
+        Examples of conditions:
+        - "workflow.some_param == 'value'" - true if the value is equal to 'value'
+        - "workflow.some_param != 'value'" - true if the value is not equal to 'value'
+        - "workflow.some_param > 10" - true if the numeric value is greater than 10
+        - "workflow.some_param < 10" - true if the numeric value is less than 10
+        - "workflow.some_param >= 10" - true if the numeric value is greater than or equal to 10
+        - "workflow.some_param <= 10" - true if the numeric value is less than or equal to 10
+        - "workflow.some_param is not None" - true if the value is not None
+        - "My_Action.result == 'success'" - true if the action result is equal to 'success'
+        - "My_Action.result != 'success'" - true if the action result is not equal to 'success'
+        - "My_Action.result is not None" - true if the action result is not None
+        - "My_Action.result is None" - true if the action result is None
+        
+        Comparisons to strings are case-insensitive.
+        And conditions are supported.
+        Or conditions are supported.
+        Parentheses are not supported.
+        Key matching in context is case-insensitive.
+        
+        Invalid conditions will return False.
+        
+        Args:
+            condition: The condition to evaluate
+            context: The context to use to evaluate the condition
+            
+        Returns:
+            True if the condition is met, False otherwise
+        """
+        if not condition:
+            return True
+
+        try:
+            # Create a case-insensitive context dictionary
+            context_lower = {k.lower(): v for k, v in context.items()}
+
+            # Split the condition into parts if it contains 'or'
+            if ' or ' in condition:
+                parts = condition.split(' or ')
+                if not all(part.strip() for part in parts):  # Check for empty parts
+                    return False
+                return any(Utilities.evaluate_condition(part.strip(), context) for part in parts)
+
+            # Split the condition into parts if it contains 'and'
+            if ' and ' in condition:
+                parts = condition.split(' and ')
+                if not all(part.strip() for part in parts):  # Check for empty parts
+                    return False
+                return all(Utilities.evaluate_condition(part.strip(), context) for part in parts)
+
+            # Handle 'is None' and 'is not None' checks
+            if ' is None' in condition:
+                key = condition.split(' is None')[0].strip()
+                if not key:  # Empty key
+                    return False
+                return key.lower() not in context_lower or context_lower[key.lower()] is None
+            if ' is not None' in condition:
+                key = condition.split(' is not None')[0].strip()
+                if not key:  # Empty key
+                    return False
+                return key.lower() in context_lower and context_lower[key.lower()] is not None
+
+            # Handle comparison operators
+            operators = ['==', '!=', '>=', '<=', '>', '<']
+            for op in operators:
+                if f' {op} ' in condition:
+                    parts = condition.split(f' {op} ')
+                    if len(parts) != 2:  # Must have exactly two parts
+                        return False
+                    left, right = parts
+                    left = left.strip()
+                    right = right.strip()
+                    
+                    if not left or not right:  # Empty left or right side
+                        return False
+
+                    # Get the value from context using case-insensitive key
+                    if left.lower() not in context_lower:
+                        return False
+                    left_value = context_lower[left.lower()]
+
+                    # Handle string values (remove quotes)
+                    if right.startswith("'") and right.endswith("'"):
+                        right = right[1:-1]
+                    elif right.startswith('"') and right.endswith('"'):
+                        right = right[1:-1]
+                    elif not right.isdigit():  # Only require quotes for non-numeric values
+                        return False  # String values must be quoted
+
+                    # Try to convert to number if possible
+                    try:
+                        if isinstance(left_value, str) and left_value.isdigit():
+                            left_value = int(left_value)
+                        if isinstance(right, str) and right.isdigit():
+                            right = int(right)
+                    except ValueError:
+                        pass
+
+                    # For string comparisons, convert both sides to lowercase
+                    if isinstance(left_value, str) and isinstance(right, str):
+                        left_value = left_value.lower()
+                        right = right.lower()
+
+                    # Evaluate the comparison
+                    if op == '==':
+                        return left_value == right
+                    elif op == '!=':
+                        return left_value != right
+                    elif op == '>=':
+                        return left_value >= right
+                    elif op == '<=':
+                        return left_value <= right
+                    elif op == '>':
+                        return left_value > right
+                    elif op == '<':
+                        return left_value < right
+
+            return False  # No valid operator found
+        except Exception:
+            return False  # Any other error returns False

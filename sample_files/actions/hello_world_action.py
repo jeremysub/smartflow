@@ -23,6 +23,6 @@ class HelloWorldAction(ActionHandler):
         action_context["greeting"] = greeting
 
         # add success indicator to the context
-        action_context["result"] = "success"
+        action_context["result"] = "Success"
         
         return action_context
