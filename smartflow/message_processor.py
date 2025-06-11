@@ -158,11 +158,14 @@ class MessageProcessor:
                 
                 # error can be gracefully handled by the action handler, so we need to check for it
                 is_error = action_context["result"] and action_context["result"].lower() == "error"
+                if is_error:
+                    context["workflow.last_error"] = action_context["error"]
                 
             except Exception as e:
                 # error can also be raised by the action handler, so we need to check for it as well
                 logging.error(f"Action execution failed: {e}")
                 action_context = {"result": "Error", "error": str(e)}
+                context["workflow.last_error"] = str(e)
                 is_error = True
             
             # if not a workflow key, prefix the keys in the action context with the action prefix (using dot notation)
