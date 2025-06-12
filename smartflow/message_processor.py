@@ -58,6 +58,7 @@ class MessageProcessor:
             
             self._workflow = Utilities.load_workflow_config(workflow_message.config_name)
             
+            # handle if it doesn't exist
             if (self._workflow is None):
 
                 err = f"Missing or malformed workflow config '{workflow_message.config_name}'."

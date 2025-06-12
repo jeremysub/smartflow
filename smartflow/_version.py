@@ -3,4 +3,4 @@ Version information for the SmartFlow package.
 This is the single source of truth for the package version.
 """
 
-__version__ = "0.1.3" 
+__version__ = "0.1.4" 

@@ -72,19 +72,23 @@ class Utilities:
         Returns:
             Configuration: The configuration for the given route name
         """
-
-        # get the config from blob storage
-        blob_client = BlobStorageClient(Constants.WORKFLOW_FOLDER)
         
-        # add .json to the end of the config name if it's not there
-        if not workflow_config_name.endswith(".json"):
-            workflow_config_name = f"{workflow_config_name}.json"
-        
-        # if config doesn't exist, return None, if mal-formed, raise error
-        config_json = blob_client.download_file(workflow_config_name)
-        # deserialize the config
-        config = Workflow.model_validate_json(config_json)
-        return config
+        try:
+            # get the config from blob storage
+            blob_client = BlobStorageClient(Constants.WORKFLOW_FOLDER)
+            
+            # add .json to the end of the config name if it's not there
+            if not workflow_config_name.endswith(".json"):
+                workflow_config_name = f"{workflow_config_name}.json"
+            
+            # if config doesn't exist, return None, if mal-formed, raise error
+            config_json = blob_client.download_file(workflow_config_name)
+            # deserialize the config
+            config = Workflow.model_validate_json(config_json)
+            return config
+        except Exception as e:
+            logging.error(f"Error loading workflow config '{workflow_config_name}': {e}")
+            return None
 
     @staticmethod
     def evaluate_condition(condition: str, context: Dict[str, str]) -> bool:
